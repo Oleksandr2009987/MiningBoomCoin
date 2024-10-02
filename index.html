@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веб-клікер</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Загальний стиль для фону */
+        body {
+            background: linear-gradient(135deg, #ffcc00, #ff6600);
+            font-family: 'Arial', sans-serif;
+            color: #fff; /* Білий колір тексту */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Висота вікна */
+            overflow: hidden; /* Сховати прокрутку */
+            position: relative; /* Для позиціювання елементів */
+        }
+
+        /* Текст "Листинг скоро!" */
+        .listing {
+            position: absolute; /* Позиціюємо текст */
+            top: 20px; /* Відступ зверху */
+            right: 20px; /* Відступ справа */
+            font-size: 24px; /* Розмір шрифту */
+            font-weight: bold; /* Жирний текст */
+            background: linear-gradient(90deg, #ff6600, #ffcc00); /* Градієнт */
+            -webkit-background-clip: text; /* Кліп для фону */
+            -webkit-text-fill-color: transparent; /* Робимо текст прозорим */
+            animation: pulse 2s infinite; /* Пульсуюча анімація */
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Градієнтний текст */
+        .gradient-text {
+            font-size: 48px; /* Розмір шрифту */
+            font-weight: bold; /* Жирний текст */
+            background: linear-gradient(90deg, #ff6600, #ffcc00); /* Градієнт від оранжевого до жовтого */
+            -webkit-background-clip: text; /* Кліп для фону */
+            -webkit-text-fill-color: transparent; /* Робимо текст прозорим */
+            text-align: center; /* Вирівнювання по центру */
+            margin-bottom: 20px; /* Відступи знизу */
+        }
+
+        /* Стилі для кнопок */
+        button {
+            padding: 10px 20px;
+            font-size: 20px;
+            margin: 10px 0; /* Відступи зверху та знизу */
+            border-radius: 10px; /* Закруглені кути */
+            cursor: pointer;
+            background-color: #ff6600; /* Основний колір кнопки */
+            color: white; /* Колір тексту кнопки */
+            border: none; /* Без границі */
+            transition: background-color 0.3s, transform 0.2s; /* Анімації */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тінь */
+            width: 100%; /* Ширина кнопок на всю ширину */
+            max-width: 300px; /* Максимальна ширина кнопок */
+        }
+
+        button:hover {
+            background-color: #ffcc00; /* Колір кнопки при наведенні */
+            transform: scale(1.05); /* Збільшуємо кнопку при наведенні */
+        }
+
+        /* Стиль для контейнера реєстрації */
+        .registration-container {
+            background-color: rgba(0, 0, 0, 0.9); /* Чорний фон з прозорістю */
+            border-radius: 20px; /* Закруглені кути */
+            padding: 20px; /* Внутрішні відступи */
+            position: absolute; /* Відносне позиціювання */
+            top: 0; /* Центруємо вертикально */
+            left: 0; /* Центруємо горизонтально */
+            height: 100vh; /* Висота на весь екран */
+            width: 100vw; /* Ширина на весь екран */
+            display: flex; /* Зміна на flex для вертикального центрування */
+            flex-direction: column; /* Вертикальне розташування полів вводу */
+            gap: 10px; /* Відстань між полями */
+            z-index: 10; /* Над усіма елементами */
+            align-items: center; /* Центруємо елементи */
+            justify-content: center; /* Центруємо елементи */
+            transition: opacity 1s ease; /* Анімація для переходу */
+        }
+
+        /* Стиль для круглих полів вводу */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 80%; /* Ширина полів */
+            padding: 10px; /* Внутрішні відступи */
+            border-radius: 20px; /* Круглі кути */
+            border: 2px solid #ffcc00; /* Жовта рамка */
+            background-color: white; /* Білий фон */
+            color: #000; /* Чорний колір тексту */
+            font-size: 18px; /* Розмір шрифту */
+            transition: border 0.3s; /* Анімація для рамки */
+        }
+
+        /* Зміна кольору рамки при фокусі */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #ff6600; /* Зміна кольору рамки на оранжевий при фокусі */
+            outline: none; /* Сховати контур */
+        }
+
+        /* Контейнер для клікера */
+        .container {
+            max-width: 800px; /* Максимальна ширина для вирівнювання */
+            text-align: center; /* Центрування тексту */
+            display: none; /* Сховати контейнер з клікером спочатку */
+        }
+
+        /* Стиль для тексту успішного входу */
+        .success-message {
+            font-size: 36px; /* Розмір шрифту */
+            margin-bottom: 20px; /* Відступи знизу */
+        }
+
+        /* Стилі для секцій "О нас" і "Наш Телеграм" */
+        .info-section {
+            background-color: rgba(0, 0, 0, 0.8); /* Чорний фон з прозорістю */
+            padding: 15px; /* Внутрішні відступи */
+            border-radius: 20px; /* Закруглені кути */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Тінь */
+            font-size: 14px; /* Розмір шрифту */
+            margin: 10px 0; /* Відступи зверху та знизу */
+            text-align: center; /* Центрування тексту */
+            max-width: 300px; /* Максимальна ширина секцій */
+            margin-left: 20px; /* Добавлено отступ слева */
+            margin-right: auto; /* Центруємо секції */
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out; /* Анімація для розміру та прозорості */
+            max-height: 0; /* Секції спочатку сховані */
+            opacity: 0; /* Секції спочатку прозорі */
+            overflow: hidden; /* Сховати переповнене вміст */
+        }
+
+        /* Клас для відображення секцій */
+        .info-section.show {
+            max-height: 500px; /* Максимальна висота, щоб показати вміст */
+            opacity: 1; /* Повна непрозорість */
+        }
+
+        /* Стиль для кнопки меню */
+        #menuButton {
+            background-color: #ffcc00; /* Основний колір кнопки меню */
+            border: none; /* Без границі */
+            border-radius: 10px; /* Закруглені кути */
+            color: #000; /* Чорний колір тексту */
+            padding: 10px 20px; /* Внутрішні відступи */
+            font-size: 20px; /* Розмір шрифту */
+            cursor: pointer; /* Курсор вказує на кнопку */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тінь */
+            transition: background-color 0.3s, transform 0.2s; /* Анімації */
+            width: 100%; /* Ширина кнопки на всю ширину */
+            max-width: 300px; /* Максимальна ширина кнопки */
+        }
+
+        #menuButton:hover {
+            background-color: #ff6600; /* Колір кнопки при наведенні */
+            transform: scale(1.05); /* Збільшення кнопки при наведенні */
+        }
+
+        /* Анімація монет */
+        .coin {
+            position: absolute; /* Позиціювання монет */
+            width: 50px; /* Ширина монет */
+            height: 50px; /* Висота монет */
+            background-color: gold; /* Золотий колір монет */
+            border-radius: 50%; /* Кругла форма */
+            animation: fly 1s forwards; /* Анімація польоту монет */
+        }
+
+        /* Анімація для монет */
+        @keyframes fly {
+            0% {
+                transform: translateY(0); /* Початкова позиція */
+            }
+            100% {
+                transform: translateY(-200px); /* Кінцева позиція */
+            }
+        }
+
+        /* Адаптивний дизайн для мобільних пристроїв */
+        @media (max-width: 600px) {
+            .listing {
+                font-size: 18px; /* Зменшений шрифт для мобільних */
+            }
+
+            .gradient-text {
+                font-size: 36px; /* Зменшений шрифт для заголовка */
+            }
+
+            button {
+                font-size: 18px; /* Зменшений шрифт для кнопок */
+                padding: 8px; /* Зменшені відступи */
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                font-size: 16px; /* Зменшений шрифт для полів вводу */
+            }
+
+            .success-message {
+                font-size: 24px; /* Зменшений шрифт для повідомлення */
+            }
+
+            .info-section {
+                font-size: 12px; /* Зменшений шрифт для секцій */
+            }
+        }
+
+        @media (max-width: 400px) {
+            .gradient-text {
+                font-size: 28px; /* Додаткове зменшення шрифту для маленьких екранів */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="listing">Листинг скоро!</div> <!-- Текст з переливкою -->
+    
+    <div class="registration-container" id="registrationContainer">
+        <h2>Реєстрація</h2>
+        <input type="text" id="username" placeholder="Ім'я користувача" required>
+        <input type="email" id="email" placeholder="Електронна пошта" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <button id="registerButton">Зареєструватися</button>
+        <h2>Вхід</h2>
+        <input type="text" id="loginUsername" placeholder="Ім'я користувача" required>
+        <input type="password" id="loginPassword" placeholder="Пароль" required>
+        <button id="loginButton">Увійти</button>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <h1 class="gradient-text">Boom Coin</h1> <!-- Градієнтний текст -->
+        <div class="success-message" id="successMessage" style="display: none;">Вхід виконаний!</div> <!-- Текст для повідомлення про вхід -->
+        <button id="clickButton">Клікни мене!</button>
+        <div id="coinDisplay">Монети: <span id="coins">0</span></div>
+        <div>
+            <button id="upgradeButton">Прокачати монети за 1 клік (вартість: 200 монет)</button>
+        </div>
+        <button id="menuButton">Меню</button> <!-- Кнопка меню -->
+        <div>
+            <p><a href="https://t.me/+bLE_EFsoIsJmYjNi" target="_blank">Boom Coin</a></p>
+        </div>
+    </div>
+
+    <!-- Секція "Наш Телеграм" -->
+    <div class="info-section telegram">
+        <h2>Наш Телеграм</h2>
+        <p><a href="https://t.me/+bLE_EFsoIsJmYjNi" target="_blank" style="color: #fff; text-decoration: none;">Переходьте за посиланням</a></p>
+    </div>
+
+    <!-- Секція "О нас" -->
+    <div class="info-section about">
+        <h2>О нас</h2>
+        <p>Це наш веб-клікер, де ви можете заробити монети, натискаючи на кнопку!</p>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Функція для зберігання акаунтів
+        function saveAccount(username, email, password) {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            accounts.push({ username, email, password });
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+        }
+
+        // Функція для перевірки облікових записів
+        function verifyAccount(username, password) {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            return accounts.find(account => account.username === username && account.password === password);
+        }
+
+        // Показати форму реєстрації, якщо користувач не зареєстрований
+        window.onload = function() {
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+            if (accounts.length === 0) {
+                document.getElementById('registrationContainer').style.display = 'flex'; // Показати форму реєстрації
+            } else {
+                document.getElementById('mainContainer').style.display = 'block'; // Показати основний контейнер
+            }
+        };
+
+        // Додаємо анімацію монет
+        document.getElementById('clickButton').addEventListener('click', () => {
+            const coin = document.createElement('div');
+            coin.classList.add('coin');
+            document.body.appendChild(coin);
+
+            const randomX = Math.random() * (window.innerWidth - 50);
+            coin.style.left = `${randomX}px`;
+
+            coin.addEventListener('animationend', () => {
+                coin.remove();
+            });
+        });
+
+        // Управління меню
+        document.getElementById('menuButton').addEventListener('click', () => {
+            const aboutSection = document.querySelector('.about');
+            const telegramSection = document.querySelector('.telegram');
+            aboutSection.classList.toggle('show');
+            telegramSection.classList.toggle('show');
+        });
+
+        // Обробка реєстрації
+        document.getElementById('registerButton').addEventListener('click', () => {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Перевірка наявності полів
+            if (username && email && password) {
+                // Перевірка формату електронної пошти
+                if (!email.endsWith('.com')) {
+                    alert('Будь ласка, введіть коректну електронну пошту (.com).');
+                    return;
+                }
+
+                // Зберігання акаунту
+                saveAccount(username, email, password);
+                alert(`Вітаємо, ${username}! Ви успішно зареєструвалися.`);
+                document.getElementById('registrationContainer').style.opacity = '0'; // Зменшити непрозорість
+                setTimeout(() => {
+                    document.getElementById('registrationContainer').style.display = 'none'; // Сховати форму
+                    document.getElementById('mainContainer').style.display = 'block'; // Показати основний контейнер
+                }, 1000); // Затримка перед переходом на основний контейнер
+            } else {
+                alert('Будь ласка, заповніть всі поля.');
+            }
+        });
+
+        // Обробка входу
+        document.getElementById('loginButton').addEventListener('click', () => {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const verified = verifyAccount(username, password);
+            if (verified) {
+                document.getElementById('successMessage').style.display = 'block'; // Показати повідомлення про успішний вхід
+                setTimeout(() => {
+                    document.getElementById('successMessage').style.display = 'none'; // Сховати повідомлення через 2 секунди
+                    document.getElementById('registrationContainer').style.opacity = '0'; // Зменшити непрозорість
+                    setTimeout(() => {
+                        document.getElementById('registrationContainer').style.display = 'none'; // Сховати форму
+                        document.getElementById('mainContainer').style.display = 'block'; // Показати основний контейнер
+                    }, 1000); // Затримка перед переходом на основний контейнер
+                }, 2000); // Затримка перед переходом на основний контейнер
+            } else {
+                alert('Неправильне ім’я користувача або пароль.');
+            }
+        });
+
+        // Обробка прокачки монет
+        document.getElementById('upgradeButton').addEventListener('click', () => {
+            const coins = parseInt(document.getElementById('coins').innerText);
+            if (coins >= 200) {
+                document.getElementById('coins').innerText = coins - 200; // Віднімемо 200 монет
+                alert('Ви успішно прокачали монети!');
+            } else {
+                alert('У вас недостатньо монет для прокачки.');
+            }
+        });
+
+        // Обробка кліків на кнопку
+        document.getElementById('clickButton').addEventListener('click', () => {
+            const coins = parseInt(document.getElementById('coins').innerText);
+            document.getElementById('coins').innerText = coins + 1; // Додаємо монету
+        });
+    </script>
+</body>
+</html>
