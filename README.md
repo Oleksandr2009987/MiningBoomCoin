@@ -1,0 +1,2 @@
+# MiningBoomCoin
+Mining BoomCoin
